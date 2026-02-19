@@ -12,7 +12,7 @@ app.use(express.json());
 
 // ✅ Routes SECOND
 app.use("/api/users", userRoutes);
-app.use("/api/users",postRoutes)
+app.use("/api/posts",postRoutes)
 
 async function startServer() {
   try {

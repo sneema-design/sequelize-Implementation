@@ -14,14 +14,14 @@ const getAllPost = async (req, res) => {
   try {
     const post = await Post.findAll({
       include: [
-        { model: User, as: "user" },
-        { model: comment, as: "comments" },
+        { model: User, as: "users" },
+        { model: Comment, as: "comments" },
       ],
     });
-    if (!post) {
+    if (post.length===0) {
       return res.status(404).json({ message: error.message });
     }
-    res.status(200).json({ error: error.message });
+    res.status(200).json(post);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
