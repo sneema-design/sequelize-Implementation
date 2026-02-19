@@ -18,7 +18,7 @@ const getAllPost = async (req, res) => {
         { model: Comment, as: "comments" },
       ],
     });
-    if (post.length===0) {
+    if (post.length === 0) {
       return res.status(404).json({ message: error.message });
     }
     res.status(200).json(post);
@@ -27,7 +27,7 @@ const getAllPost = async (req, res) => {
   }
 };
 
-module.exports={
-    createPost,
-    getAllPost
-}
+module.exports = {
+  createPost,
+  getAllPost,
+};

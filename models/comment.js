@@ -6,12 +6,12 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Comment.belongsTo(models.User, {
         foreignKey: "userId",
-        as: "user",
+        as: "users",
       });
 
       Comment.belongsTo(models.Post, {
         foreignKey: "postId",
-        as: "post",
+        as: "posts",
       });
     }
   }

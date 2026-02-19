@@ -4,7 +4,8 @@ dotenv.config();
 const express = require("express");
 const { sequelize, connectDb } = require("./dbConnection");
 const userRoutes = require("./routes/userRoutes");
-const postRoutes=require("./routes/postRoutes")
+const postRoutes = require("./routes/postRoutes");
+const commentRoutes = require("./routes/commentsRoutes");
 const app = express();
 
 // ✅ Body parser FIRST
@@ -12,8 +13,8 @@ app.use(express.json());
 
 // ✅ Routes SECOND
 app.use("/api/users", userRoutes);
-app.use("/api/posts",postRoutes)
-
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
 async function startServer() {
   try {
     await connectDb();
