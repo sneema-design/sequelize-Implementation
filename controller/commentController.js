@@ -26,7 +26,7 @@ const getAllComments=async(req,res)=>{
     }
 }
 
-model.exports={
+module.exports={
     createComments,
     getAllComments
 }
