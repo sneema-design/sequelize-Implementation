@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+const bcrypt = require("bcrypt");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -22,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Comment, {
         foreignKey: "userId",
         as: "comment",
+      });
+      User.hasMany(models.Transaction, {
+        foreignKey: "userId",
+        as: "transactions",
       });
     }
   }
@@ -51,10 +56,27 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      image: {
+        type: DataTypes.STRING,
+      },
+      balance: {
+        type: DataTypes.DECIMAL,
+        allowNull: false,
+        defaultValue: 0.0,
+      },
     },
     {
       sequelize,
       modelName: "User",
+      hooks: {
+        beforeCreate: async (User) => {
+          const salt = await bcrypt.genSalt(10);
+          User.password = await bcrypt.hash(User.password, salt);
+        },
+        afterCreate: async (User) => {
+          console.log(User.email);
+        },
+      },
       timestamps: true,
     },
   );

@@ -2,9 +2,15 @@ const { User,Post } = require("../models");
 const { Op, where, INTEGER } = require("sequelize");
 const createUser = async (req, res) => {
   try {
-    console.log("user:", req.body);
-    const user = await User.create(req.body);
-    res.status(200).json(user);
+    console.log("body:", req.body);
+    console.log("file:", req.file);
+
+    const user = await User.create({
+      ...req.body,
+      image: req.file ? req.file.filename : null,
+    });
+
+    res.status(201).json(user);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

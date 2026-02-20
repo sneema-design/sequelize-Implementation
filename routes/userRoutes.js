@@ -1,5 +1,6 @@
 const express = require("express");
-const { createUser, getAllUser, getUserById, updateUser, deleteUser, filterUser } = require("../controller/userController");
+const upload = require("../middleware/upload");
+const {  createUser,getAllUser, getUserById, updateUser, deleteUser, filterUser } = require("../controller/userController");
 
 const router = express.Router();
 
