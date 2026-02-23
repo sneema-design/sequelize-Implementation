@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
     static findByEmail(email) {
       return this.findOne({ where: { email } });
     }
+    async comparePassword(plainPassword) {
+      return await bcrypt.compare(plainPassword, this.password);
+    }
     static associate(models) {
       // define association here
       User.hasMany(models.Post, {

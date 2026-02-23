@@ -1,3 +1,4 @@
+const jwt  = require("jsonwebtoken");
 const { User,Post } = require("../models");
 const { Op, where, INTEGER } = require("sequelize");
 const createUser = async (req, res, next) => {
@@ -36,7 +37,7 @@ const createUser = async (req, res, next) => {
     });
 
   } catch (error) {
-    next(error); // ✅ correct error forwarding
+    next(error); 
   }
 }
 const getAllUser = async (req, res) => {
@@ -114,11 +115,43 @@ const filterUser=async(req,res)=>{
     
   }
 }
+const login=async(req,res)=>{
+  try {
+    const {email,password} =req.body;
+    const user= await User.findOne({where:{email}});
+    if(!user){
+      return res.status(404).json({message:"user not found"});
+    }
+    const isMatch= await user.comparePassword(password);
+    if(!isMatch){
+      return res.status(401).json({message:"password is wrong"})
+    }
+    const token=jwt.sign({id:user.id,email:user.email},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN})
+    res.status(200).json({token})
+  } catch (error) {
+    res.status(500).json({
+      error:error.message
+    })
+  }
+}
+const getUserByToken=async(req,res)=>{
+  try {
+    const token =req.headers.authorization.split(" ")[1];
+    const decoded= await jwt.verify(token,process.env.JWT_SECRET);
+    const id=decoded.id;
+    const user =await User.findByPk(id);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({error:error.message})
+  }
+}
 module.exports = {
   createUser,
   getAllUser,
   getUserById,
   updateUser,
   deleteUser,
-  filterUser
+  filterUser,
+  login,
+  getUserByToken
 };
