@@ -1,20 +1,44 @@
 const { User,Post } = require("../models");
 const { Op, where, INTEGER } = require("sequelize");
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   try {
     console.log("body:", req.body);
     console.log("file:", req.file);
 
+    const {
+      firstName,
+      lastName,
+      email,
+      age,
+      password,
+      balance
+    } = req.body;
+
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({
+        message: "Required fields missing"
+      });
+    }
+
     const user = await User.create({
-      ...req.body,
-      image: req.file ? req.file.filename : null,
+      firstName,
+      lastName,
+      email,
+      age,
+      password,
+      balance,
+      image: req.file ? req.file.filename : null
     });
 
-    res.status(201).json(user);
+    res.status(201).json({
+      success: true,
+      data: user
+    });
+
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error); // ✅ correct error forwarding
   }
-};
+}
 const getAllUser = async (req, res) => {
   try {
     const users = await User.findAll({

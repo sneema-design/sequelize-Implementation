@@ -21,10 +21,13 @@ const cashIn = async (req, res) => {
         throw new Error("Invalid amount");
       }
 
+      // use methods here
       user.balance = parseFloat(user.balance) + parsedAmount;
 
+      // action 1 -- incriment
       await user.save({ transaction: t });
 
+      // action 2 -- transaction history
       const trans = await Transaction.create(
         {
           userId,
@@ -34,12 +37,12 @@ const cashIn = async (req, res) => {
         { transaction: t },
       );
 
-      return res.status(200).json({
+      return {
         transaction: trans,
         user_balance: user.balance,
-      });
+      };
     });
-
+    console.log("result", result);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({
@@ -52,7 +55,6 @@ const cashOut = async (req, res) => {
 
   try {
     const result = await sequelize.transaction(async (t) => {
-
       const user = await User.findByPk(userId, {
         transaction: t,
         lock: t.LOCK.UPDATE,
@@ -74,9 +76,7 @@ const cashOut = async (req, res) => {
         throw new Error("User doesn't have enough balance");
       }
 
-      user.balance = parseFloat(
-        (currentBalance - parsedAmount).toFixed(2)
-      );
+      user.balance = parseFloat((currentBalance - parsedAmount).toFixed(2));
 
       await user.save({ transaction: t });
 
@@ -86,7 +86,7 @@ const cashOut = async (req, res) => {
           type: "cash_out",
           amount: parsedAmount,
         },
-        { transaction: t }
+        { transaction: t },
       );
 
       return {
@@ -96,7 +96,6 @@ const cashOut = async (req, res) => {
     });
 
     return res.status(200).json(result);
-
   } catch (error) {
     return res.status(500).json({
       message: error.message,
@@ -104,5 +103,6 @@ const cashOut = async (req, res) => {
   }
 };
 module.exports = {
-  cashIn,cashOut
+  cashIn,
+  cashOut,
 };

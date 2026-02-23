@@ -1,46 +1,49 @@
-'use strict';
+"use strict";
 
-const { Model } = require('sequelize');
+const { Model } = require("sequelize");
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Transactions', {
+    await queryInterface.createTable("Transactions", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       userId: {
         type: Sequelize.INTEGER,
-        allowNull:false,
-        reference:{
-          model:"Users",
-          key:"id"
+        allowNull: false,
+        reference: {
+          model: "Users",
+          key: "id",
         },
-        onUpdate:"CASCADE",
-        onDelete:"CASCADE"
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       type: {
-        type: Sequelize.ENUM("cash_in","cash_out"),
-        allowNull:false
+        type: Sequelize.ENUM("cash_in", "cash_out"),
+        allowNull: false,
       },
       amount: {
-        type: Sequelize.DECIMAL(10,2),
-        allowNull:false
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Transactions');
-  }
+    await queryInterface.dropTable("Transactions");
+    await queryInterface.sequelize.query(
+      'DROP TYPE IF EXISTS "enum_Transactions_type";',
+    );
+  },
 };

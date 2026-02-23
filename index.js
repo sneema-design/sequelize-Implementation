@@ -2,23 +2,18 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const express = require("express");
-const { connectDb } = require("./dbConnection");
-const userRoutes = require("./routes/userRoutes");
-const postRoutes = require("./routes/postRoutes");
-const commentRoutes = require("./routes/commentsRoutes");
-const transactionRoutes=require("./routes/transactionRoutes")
+const { sequelize, connectDb } = require("./dbConnection");
+
 const app = express();
 
 app.use(express.json());
 
-app.use("/api/users", userRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/comments", commentRoutes);
-app.use("/api/transaction",transactionRoutes)
+
+const routes=require("./routes")
 async function startServer() {
   try {
     await connectDb();
-    console.log("pass:", process.env.DB_PASS);  
+    console.log("pass:", process.env.DB_PASS);
 
     app.listen(8080, () => {
       console.log("server is running");
@@ -28,4 +23,9 @@ async function startServer() {
   }
 }
 
+
 startServer();
+
+
+app.use("/api", routes);
+
