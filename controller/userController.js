@@ -1,150 +1,86 @@
-const jwt  = require("jsonwebtoken");
-const { User,Post } = require("../models");
-const { Op, where, INTEGER } = require("sequelize");
+// controllers/user.controller.js
+const userService = require("../service/user.Service");
+
 const createUser = async (req, res, next) => {
   try {
-    console.log("body:", req.body);
-    console.log("file:", req.file);
-
-    const {
-      firstName,
-      lastName,
-      email,
-      age,
-      password,
-      balance
-    } = req.body;
-
-    if (!firstName || !lastName || !email || !password) {
-      return res.status(400).json({
-        message: "Required fields missing"
-      });
-    }
-
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      age,
-      password,
-      balance,
-      image: req.file ? req.file.filename : null
-    });
-
-    res.status(201).json({
-      success: true,
-      data: user
-    });
-
+    const user = await userService.createUser(req.body, req.file);
+    res.status(201).json({ success: true, data: user });
   } catch (error) {
-    next(error); 
+    next(error);
   }
-}
-const getAllUser = async (req, res) => {
+};
+
+const getAllUser = async (req, res, next) => {
   try {
-    const users = await User.findAll({
-      include:[
-        {model:Post,as:"posts"}
-      ]
-    });
+    const users = await userService.getAllUsers();
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
-const getUserById = async (req, res) => {
+
+const getUserById = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const user = await User.findByPk(id);
-    if (!user) {
-      return res.status(404).json({ message: "no user found" });
-    }
+    const user = await userService.getUserById(req.params.id);
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
-    const user= await User.findByPk(req.params.id);
-    if(!user){
-      return res.status(404).json({message:"no user found"});
-    }
-    const updatedUser=await user.update(req.body);
-    res.status(200).json(updatedUser)
+    const updatedUser = await userService.updateUser(
+      req.params.id,
+      req.body
+    );
+    res.status(200).json(updatedUser);
   } catch (error) {
-    res.status(500).json({error:error.message})
+    next(error);
   }
 };
 
-const deleteUser=async(req,res)=>{
+const deleteUser = async (req, res, next) => {
   try {
-    const user=await User.findByPk(req.params.id);
-    if(!user){
-      return res.status(404).json({message:"no user found"})
-    }
-    await user.destroy();
-    res.status(200).json({message:"user deleted successfully"})
+    await userService.deleteUser(req.params.id);
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    res.status(500).json({error:error.message})
+    next(error);
   }
-}
+};
 
-const filterUser=async(req,res)=>{
+const filterUser = async (req, res, next) => {
   try {
-    const {minAge,maxAge}=req.query;
-    const whereClause={}
-    if(minAge && maxAge){
-      whereClause.age={
-        [Op.between]:[Number(minAge),Number(maxAge)]
-      }
-    }
-    const users=await User.findAll({
-      where:{
-        age:{
-        [Op.between]:[Number(minAge),Number(maxAge)]
-      }
-      }
-    })
-    if(!users){
-      return res.status(404).json({message:"no user found"})
-    }
-    res.status(200).json(users)
+    const { minAge, maxAge } = req.query;
+    const users = await userService.filterUser(minAge, maxAge);
+    res.status(200).json(users);
   } catch (error) {
-    
+    next(error);
   }
-}
-const login=async(req,res)=>{
+};
+
+const login = async (req, res, next) => {
   try {
-    const {email,password} =req.body;
-    const user= await User.findOne({where:{email}});
-    if(!user){
-      return res.status(404).json({message:"user not found"});
-    }
-    const isMatch= await user.comparePassword(password);
-    if(!isMatch){
-      return res.status(401).json({message:"password is wrong"})
-    }
-    const token=jwt.sign({id:user.id,email:user.email},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN})
-    res.status(200).json({token})
+    const token = await userService.login(
+      req.body.email,
+      req.body.password
+    );
+    res.status(200).json({ token });
   } catch (error) {
-    res.status(500).json({
-      error:error.message
-    })
+    next(error);
   }
-}
-const getUserByToken=async(req,res)=>{
+};
+
+const getUserByToken = async (req, res, next) => {
   try {
-    const token =req.headers.authorization.split(" ")[1];
-    const decoded= await jwt.verify(token,process.env.JWT_SECRET);
-    const id=decoded.id;
-    const user =await User.findByPk(id);
+    const token = req.headers.authorization.split(" ")[1];
+    const user = await userService.getUserByToken(token);
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({error:error.message})
+    next(error);
   }
-}
+};
+
 module.exports = {
   createUser,
   getAllUser,
