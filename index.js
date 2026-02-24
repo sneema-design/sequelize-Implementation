@@ -15,19 +15,19 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/health", (rew, res) => {
   return res.status(200).json("server is healthy");
 });
-app.use("/api", routes);
+app.use("/api", routes); 
 app.use(errorHandler);
 async function startServer() {
-  try {
+  try { 
     await connectDb();
     // console.log("pass:", process.env.DB_PASS);
-
-    app.listen(PORT, () => {
+ 
+    app.listen(PORT, () => { 
       console.log("server is running");
     });
   } catch (error) {
     console.error(error);
-  }
+  } 
 }
 
 startServer();
