@@ -6,6 +6,8 @@ const { sequelize, connectDb } = require("./dbConnection");
 const app = express();
 const cors = require("cors");
 const routes = require("./routes");
+const PORT = process.env.PORT || 8080;
+
 const errorHandler = require("./middleware/error.middleware");
 app.use(express.json());
 app.use(cors());
@@ -20,7 +22,7 @@ async function startServer() {
     await connectDb();
     // console.log("pass:", process.env.DB_PASS);
 
-    app.listen(process.env.PORT, () => {
+    app.listen(PORT, () => {
       console.log("server is running");
     });
   } catch (error) {
