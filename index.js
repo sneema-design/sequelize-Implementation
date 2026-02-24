@@ -4,9 +4,11 @@ const express = require("express");
 const path = require("path");
 const { sequelize, connectDb } = require("./dbConnection");
 const app = express();
+const cors=require("cors")
 const routes = require("./routes");
 const errorHandler = require("./middleware/error.middleware");
 app.use(express.json());
+app.use(cors())
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api", routes);
 app.use(errorHandler);
