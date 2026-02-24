@@ -13,9 +13,9 @@ app.use(errorHandler);
 async function startServer() {
   try {
     await connectDb();
-    console.log("pass:", process.env.DB_PASS);
+    // console.log("pass:", process.env.DB_PASS);
 
-    app.listen(8080, () => {
+    app.listen(process.env.PORT, () => {
       console.log("server is running");
     });
   } catch (error) {
