@@ -4,12 +4,15 @@ const express = require("express");
 const path = require("path");
 const { sequelize, connectDb } = require("./dbConnection");
 const app = express();
-const cors=require("cors")
+const cors = require("cors");
 const routes = require("./routes");
 const errorHandler = require("./middleware/error.middleware");
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.get("/health", (rew, res) => {
+  return res.status(200).json("server is healthy");
+});
 app.use("/api", routes);
 app.use(errorHandler);
 async function startServer() {
@@ -26,4 +29,3 @@ async function startServer() {
 }
 
 startServer();
- 
