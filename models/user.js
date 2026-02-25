@@ -62,11 +62,16 @@ module.exports = (sequelize, DataTypes) => {
       image: {
         type: DataTypes.STRING,
       },
-      balance: {
-        type: DataTypes.DECIMAL,
+      bio: {
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 0.0,
+        defaultValue:"",
       },
+      refreshToken:{
+        type:DataTypes.STRING,
+        allowNull:true,
+        defaultValue:""
+      }
     },
     {
       sequelize,
