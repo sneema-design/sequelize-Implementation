@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       Post.belongsTo(models.User, {
         foreignKey: "userId",
         as: "users",
+        onDelete: "CASCADE",
       });
       Post.hasMany(models.Comment, {
         foreignKey: "postId",
@@ -25,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      content: {
+      caption: {
         type: DataTypes.TEXT,
         allowNull: false,
       },
@@ -33,11 +34,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       sequelize,
       modelName: "Post",
       timestamps: true,
+      // paranoid:true
     },
   );
   return Post;
