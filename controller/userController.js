@@ -32,7 +32,8 @@ const updateUser = async (req, res, next) => {
   try {
     const updatedUser = await userService.updateUser(
       req.params.id,
-      req.body
+      req.body,
+      req.file
     );
     res.status(200).json(updatedUser);
   } catch (error) {

@@ -34,9 +34,12 @@ const getUserById = async (id) => {
   return user;
 };
 
-const updateUser = async (id, data) => {
+const updateUser = async (id, data,file) => {
   const user = await User.findByPk(id);
   if (!user) throw new Error("User not found");
+ if (file) {
+    data.image = file.filename;
+  }
 
   return await user.update(data);
 };

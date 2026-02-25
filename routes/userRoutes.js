@@ -11,7 +11,7 @@ router.get("/profile",getUserByToken)
 router.post("/refreshAccessToken",refreshAccess_Token)
 router.get("/all",getAllUser)
 router.get("/:id",getUserById)
-router.post("/:id",updateUser)
+router.post("/:id",upload.single("image"),updateUser)
 router.delete("/:id",deleteUser)
 router.get("/",filterUser)
 
