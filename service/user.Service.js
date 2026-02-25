@@ -69,20 +69,35 @@ const login = async (email, password) => {
   const isMatch = await user.comparePassword(password);
   if (!isMatch) throw new Error("Invalid password");
 
-  const token = jwt.sign(
+  const access_token = jwt.sign(
     { id: user.id, email: user.email },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN }
   );
-
-  return token;
+  const refresh_token=jwt.sign(
+     {id:user.id},
+     process.env.REFRESH_SECRET,
+     {expiresIn:process.env.REFRESH_TOKEN_EXPIRES_IN}
+  )
+  return {access_token,refresh_token};
 };
 
 const getUserByToken = async (token) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
   return await User.findByPk(decoded.id);
 };
-
+const refreshAccessToken =async(refresh_token)=>{
+  if(!refresh_token){
+    throw new Error("refresh token not provided");
+  }
+  const decoded= jwt.verify(refresh_token,process.env.REFRESH_SECRET);
+  const user= User.findByPk(decoded.id);
+  if(!user){
+    throw new Error("user not found");
+  }
+  const access_token=jwt.sign({id:user.id,email:user.email},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN})
+  return access_token
+}
 module.exports = {
   createUser,
   getAllUsers,
@@ -91,5 +106,6 @@ module.exports = {
   deleteUser,
   filterUser,
   login,
-  getUserByToken
+  getUserByToken,
+  refreshAccessToken,
 };

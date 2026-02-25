@@ -61,11 +61,11 @@ const filterUser = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const token = await userService.login(
+    const {access_token,refresh_token} = await userService.login(
       req.body.email,
       req.body.password
     );
-    res.status(200).json({ token });
+    res.status(200).json({ access_token,refresh_token });
   } catch (error) {
     next(error);
   }
@@ -80,6 +80,16 @@ const getUserByToken = async (req, res, next) => {
     next(error);
   }
 };
+const refreshAccess_Token=async(req,res,next)=>{
+  try {
+    const access_token=await userService.refreshAccessToken(
+      req.body.refresh_token
+    )
+    res.status(200).json({access_token:access_token})
+  } catch (error) {
+    next(error)
+  }
+}
 
 module.exports = {
   createUser,
@@ -89,5 +99,6 @@ module.exports = {
   deleteUser,
   filterUser,
   login,
-  getUserByToken
+  getUserByToken,
+  refreshAccess_Token
 };
