@@ -4,8 +4,7 @@ const { User, Post } = require("../models");
 const { Op } = require("sequelize");
 
 const createUser = async (data, file) => {
-  const { firstName, lastName, email, age, password, balance } = data;
-
+  const { firstName, lastName, email, age, password, bio } = data;
   if (!firstName || !lastName || !email || !password) {
     throw new Error("Required fields missing");
   }
@@ -16,8 +15,8 @@ const createUser = async (data, file) => {
     email,
     age,
     password,
-    balance,
-    image: file ? file.filename : null
+    bio,
+    image: file ? file.filename : null,
   });
 
   return user;
@@ -25,7 +24,7 @@ const createUser = async (data, file) => {
 
 const getAllUsers = async () => {
   return await User.findAll({
-    include: [{ model: Post, as: "posts" }]
+    include: [{ model: Post, as: "posts" }],
   });
 };
 
@@ -55,7 +54,7 @@ const filterUser = async (minAge, maxAge) => {
 
   if (minAge && maxAge) {
     whereClause.age = {
-      [Op.between]: [Number(minAge), Number(maxAge)]
+      [Op.between]: [Number(minAge), Number(maxAge)],
     };
   }
 
@@ -72,32 +71,40 @@ const login = async (email, password) => {
   const access_token = jwt.sign(
     { id: user.id, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN }
+    { expiresIn: process.env.JWT_EXPIRES_IN },
   );
-  const refresh_token=jwt.sign(
-     {id:user.id},
-     process.env.REFRESH_SECRET,
-     {expiresIn:process.env.REFRESH_TOKEN_EXPIRES_IN}
-  )
-  return {access_token,refresh_token};
+  const refresh_token = jwt.sign(
+    { id: user.id },
+    process.env.REFRESH_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
+  );
+
+  user.refreshToken=refresh_token;
+  await user.save()
+
+  return { access_token, refresh_token };
 };
 
 const getUserByToken = async (token) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
   return await User.findByPk(decoded.id);
 };
-const refreshAccessToken =async(refresh_token)=>{
-  if(!refresh_token){
+const refreshAccessToken = async (refresh_token) => {
+  if (!refresh_token) {
     throw new Error("refresh token not provided");
   }
-  const decoded= jwt.verify(refresh_token,process.env.REFRESH_SECRET);
-  const user= User.findByPk(decoded.id);
-  if(!user){
+  const decoded = jwt.verify(refresh_token, process.env.REFRESH_SECRET);
+  const user = User.findByPk(decoded.id);
+  if (!user) {
     throw new Error("user not found");
   }
-  const access_token=jwt.sign({id:user.id,email:user.email},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN})
-  return access_token
-}
+  const access_token = jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN },
+  );
+  return access_token;
+};
 module.exports = {
   createUser,
   getAllUsers,
