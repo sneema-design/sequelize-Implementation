@@ -2,7 +2,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const path = require("path");
-const { sequelize, connectDb } = require("./dbConnection");
 const app = express();
 const cors = require("cors");
 const routes = require("./routes");
@@ -19,7 +18,7 @@ app.use("/api", routes);
 app.use(errorHandler);
 async function startServer() {
   try { 
-    await connectDb();
+    // await connectDb();
     // console.log("pass:", process.env.DB_PASS);
  
     app.listen(PORT, () => { 
