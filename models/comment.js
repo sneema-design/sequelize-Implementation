@@ -8,7 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "userId",
         as: "users",
       });
-
       Comment.belongsTo(models.Post, {
         foreignKey: "postId",
         as: "posts",
