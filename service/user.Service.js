@@ -32,7 +32,7 @@ const getUserById = async (id) => {
 const updateUser = async (id, data, file) => {
   const user = await User.findByPk(id);
   if (!user) throw new Error("User not found");
-  if (file) {
+  if (file) { 
     data.image = file.filename;
   }
 
