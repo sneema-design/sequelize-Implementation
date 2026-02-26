@@ -18,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
       return await bcrypt.compare(plainPassword, this.password);
     }
     static associate(models) {
-      // define association here
       User.hasMany(models.Post, {
         foreignKey: "userId",
         as: "posts",

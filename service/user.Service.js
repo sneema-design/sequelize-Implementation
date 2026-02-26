@@ -10,12 +10,7 @@ const createUser = async (data, file) => {
   }
 
   const user = await User.create({
-    firstName,
-    lastName,
-    email,
-    age,
-    password,
-    bio,
+    ...data,
     image: file ? file.filename : null,
   });
 
@@ -34,10 +29,10 @@ const getUserById = async (id) => {
   return user;
 };
 
-const updateUser = async (id, data,file) => {
+const updateUser = async (id, data, file) => {
   const user = await User.findByPk(id);
   if (!user) throw new Error("User not found");
- if (file) {
+  if (file) {
     data.image = file.filename;
   }
 
@@ -76,14 +71,12 @@ const login = async (email, password) => {
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN },
   );
-  const refresh_token = jwt.sign(
-    { id: user.id },
-    process.env.REFRESH_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
-  );
+  const refresh_token = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
+  });
 
-  user.refreshToken=refresh_token;
-  await user.save()
+  user.refreshToken = refresh_token;
+  await user.save();
 
   return { access_token, refresh_token };
 };
