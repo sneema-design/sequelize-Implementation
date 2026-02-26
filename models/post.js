@@ -5,8 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Post.belongsTo(models.User, {
         foreignKey: "userId",
-        as: "users",
-        onDelete: "CASCADE",
+        as: "user",
       });
       Post.hasMany(models.Comment, {
         foreignKey: "postId",
@@ -43,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "Post",
       timestamps: true,
-      // paranoid:true
+      paranoid:true
     },
   );
   return Post;
