@@ -1,64 +1,54 @@
-'use strict';
-
-const comment = require('../models/comment');
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-    await queryInterface.createTable("Threads",{
-      id:{
-        allowNull:false,
-        autoIncrement:true,
-        primaryKey:true,
-        type:Sequelize.INTEGER,
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("Threads", {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
       },
-      userid:{
-        type:Sequelize.INTEGER,
-        reference:{
-              model:"Users",
-              key:"id"
-        },
-        allowNull:false,
-        onDelete:"CASCADE"
 
-      },
-      commentId:{
-        allowNull:false,
-        reference:{
-          model:"Comments",
-          key:"id"
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
         },
-        type:Sequelize.INTEGER,
-        onDelete:"CASCADE"
+        onDelete: "CASCADE",
       },
-      content:{
-        allowNull:false,
-        type:Sequelize.INTEGER,
+
+      commentId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Comments",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
-      createdAt:{
-        allowNull:false,
-        type:Sequelize.DATE
+
+      content: {
+        type: Sequelize.TEXT,
+        allowNull: false,
       },
-      updateAt:{
-        allowNull:false,
-        type:Sequelize.DATE
-      }
-    })
+
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+    });
   },
 
-  async down (queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-    await queryInterface.dropTable('Threads');
-  }
+  async down(queryInterface) {
+    await queryInterface.dropTable("Threads");
+  },
 };

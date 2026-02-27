@@ -1,4 +1,3 @@
-const { Model } = require("sequelize");
 const { create_like, get_AllLikes, get_LikeById, get_LikeByUserId, get_LikeByPostId } = require("../service/like.Service");
 
 const createLike=async(req,res)=>{
