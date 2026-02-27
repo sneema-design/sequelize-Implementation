@@ -20,13 +20,25 @@ const getAllComments = async () => {
   return comments;
 };
 
-const getCommentsById=async(id)=>{
-    const comment= await Comment.findByPk(id);
-    if(!comment){
-        throw new Error("no comment found")
-    }
-    return comment
-}
+const getCommentById = async (id) => {
+  const comment = await Comment.findOne({
+    where: { id },
+    include: [
+      {
+        model: Comment,
+        as: "replies",
+        include: [{ model: User, as: "users" }],
+      },
+      { model: User, as: "users" },
+    ],
+  });
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  return comment;
+};
 
 const getCommentsByUserId=async(id)=>{
     const comments=await  Comment.findAll({
@@ -56,7 +68,7 @@ const getCommentsByPostId=async(id)=>{
 module.exports = {
   createComment,
   getAllComments,
-  getCommentsById,
+  getCommentById,
   getCommentsByUserId,
   getCommentsByPostId
 };

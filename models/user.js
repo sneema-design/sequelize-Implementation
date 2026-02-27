@@ -34,7 +34,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey:"userId",
         as:"likes"
       });
-
+       User.hasMany(models.Thread,{
+        foreignKey:"userId",
+        as:"threads"
+      });
     }
   }
   User.init(

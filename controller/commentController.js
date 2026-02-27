@@ -27,7 +27,7 @@ const getCommentsById=async(req,res)=>{
         if(!id){
             throw new Error("Please provide a id");
         }
-        const comment=await commentService.getCommentsById(id);
+        const comment=await commentService.getCommentById(id);
         res.status(200).json(comment)
     } catch (error) {
         throw new Error(error)
