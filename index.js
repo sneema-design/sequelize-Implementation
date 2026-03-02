@@ -17,10 +17,7 @@ app.get("/health", (rew, res) => {
 app.use("/api", routes); 
 app.use(errorHandler);
 async function startServer() {
-  try { 
-    // await connectDb();
-    // console.log("pass:", process.env.DB_PASS);
- 
+  try {  
     app.listen(PORT, () => { 
       console.log("server is running");
     });

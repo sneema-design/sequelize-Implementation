@@ -1,6 +1,5 @@
 const { User, Post, Comment } = require("../models");
 const create_Post = async (data, file) => {
-  try {
     const postData = {
       title: data.title,
       image: file ? file.name : null,
@@ -9,28 +8,27 @@ const create_Post = async (data, file) => {
     };
     const post = await Post.create(postData);
     return post;
-  } catch (error) {
-    throw new Error(error);
-  }
 };
 const get_AllPost = async () => {
-  try {
+
     const post = await Post.findAll({
       include: [
         { model: User, as: "user" },
         { model: Comment, as: "comments" },
       ],
     });
-    if (post.lenght === 0) {
-      throw new Error("No post exists");
-    }
-    return post;
-  } catch (error) {
-    throw new Error(error);
+    
+  if (post.length === 0) {
+    const error = new Error("No posts found");
+    error.statusCode = 404;
+    throw error;
   }
+
+    return post;
+  
 };
 const get_PostById = async (id) => {
-  try {
+  
     const post = await Post.findByPk(id, {
       include: [
         { model: User, as: "user" },
@@ -38,18 +36,20 @@ const get_PostById = async (id) => {
       ],
     });
     if (!post) {
-      throw new Error("Post does not exist");
+      const error =new Error("No post Found by this Id")
+      error.statusCode=404;
+      throw error
     }
     return post;
-  } catch (error) {
-    throw new Error(error);
-  }
+   
 };
 const delete_PostById = async (id) => {
 
     const post= await Post.findByPk(id);
     if(!post){
-        throw new Error("Post doen't exists");
+        const error=new Error("No post found by this Id")
+        error.statusCode(404)
+        throw error;
     }
     await post.destroy();
     return true;
@@ -62,13 +62,20 @@ const get_PostByUserId=async(id)=>{
       userId:id
     }
   })
+   if(!post){
+        const error=new Error("No post found By this UserId")
+        error.statusCode(404)
+        throw error;
+    }
   return post;
 }
 const update_PostById=async(id,data,file)=>{
   const post=await Post.findByPk(id);
   if(!post){
-    throw new Error("was not able to find the post ")
-  }
+        const error=new Error("No post found By this UserId")
+        error.statusCode(404)
+        throw error;
+    }
   if(file){
     data.image=file.filename;
   }

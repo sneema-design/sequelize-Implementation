@@ -13,8 +13,10 @@ const getAllComments = async () => {
     ],
   });
 
-  if (!comments.length) {
-    throw new Error("Comments not found");
+  if (comments.length === 0) {
+    const error = new Error("Comments not found");
+    error.statusCode = 404;
+    throw error;
   }
 
   return comments;
@@ -33,40 +35,46 @@ const getCommentById = async (id) => {
     ],
   });
 
-  if (!comment) throw new Error("Comment not found");
-
+  if (!comment) {
+    const error = new Error("Comment not found");
+    error.statusCode = 404;
+    throw error;
+  }
   return comment;
 };
 
-const getCommentsByUserId=async(id)=>{
-    const comments=await  Comment.findAll({
-        where:{
-            userId:id
-        }
-    })
-    if(!comments.length){
-        throw new Error("no comment found")
-    }
-    return comments
-}
-const getCommentsByPostId=async(id)=>{
-    const comments=await Comment.findAll({
-        where:{
-            postId:id
-        }
-    })
-     if(!comments.length){
-        throw new Error("no comment found")
-    }
-    return comments
+const getCommentsByUserId = async (id) => {
+  const comments = await Comment.findAll({
+    where: {
+      userId: id,
+    },
+  });
 
-}
-
+  if (comments.length === 0) {
+    const error = new Error("NO Comments by this user");
+    error.statusCode = 404;
+    throw error;
+  }
+  return comments;
+};
+const getCommentsByPostId = async (id) => {
+  const comments = await Comment.findAll({
+    where: {
+      postId: id,
+    },
+  });
+  if (comments.length === 0) {
+    const error = new Error("No Comments on the Post");
+    error.statusCode = 404;
+    throw error;
+  }
+  return comments;
+};
 
 module.exports = {
   createComment,
   getAllComments,
   getCommentById,
   getCommentsByUserId,
-  getCommentsByPostId
+  getCommentsByPostId,
 };
