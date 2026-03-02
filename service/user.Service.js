@@ -1,4 +1,6 @@
 const { User, Post } = require("../models");
+const cloudinary = require("../config/cloudinary");
+
 const { Op } = require("sequelize");
 const {
   generateAccessToken,
@@ -6,18 +8,33 @@ const {
   verifyAccessToken,
   verifyRefreshToken,
 } = require("../utils/token.utils");
+
 const createUser = async (data, file) => {
-  const checkUser = await User.findOne({where:{
-    email:data.email
-  }});
+  const checkUser = await User.findOne({
+    where: {
+      email: data.email,
+    },
+  });
   if (checkUser) {
     const error = new Error("Email Id already exists");
     error.statusCode = 409;
     throw error;
   }
+  let imageUrl;
+  let imagePublicId;
+  if (file) {
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: "profiles",
+    });
+
+    imageUrl = result.secure_url;
+    imagePublicId = result.public_id;
+  }
+
   const user = await User.create({
-    data,
-    image: file ? file.filename : null,
+    ...data,
+    image: file ? imageUrl : null,
+    imagePublicId:imagePublicId
   });
   return user;
 };
@@ -52,8 +69,18 @@ const updateUser = async (id, data, file) => {
     throw error;
   }
   if (file) {
-    data.image = file.filename;
-  }
+  
+      if (user.imagePublicId) {
+        await cloudinary.uploader.destroy(user.imagePublicId);
+      }
+  
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: "profiles",
+      });
+  
+      data.image = result.secure_url;
+      data.imagePublicId = result.public_id;
+    }
 
   return await user.update(data);
 };
