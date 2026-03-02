@@ -5,9 +5,7 @@ const { Op } = require("sequelize");
 
 const createUser = async (data, file) => {
   const { firstName, lastName, email, age, password, bio } = data;
-  if (!firstName || !lastName || !email || !password) {
-    throw new Error("Required fields missing");
-  }
+ 
 
   const user = await User.create({
     ...data,
