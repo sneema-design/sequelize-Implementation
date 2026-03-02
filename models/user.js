@@ -78,6 +78,10 @@ module.exports = (sequelize, DataTypes) => {
         type:DataTypes.STRING,
         allowNull:true,
         defaultValue:""
+      },
+      imagePublicId:{
+        type:DataTypes.STRING,
+        allowNull:true
       }
     },
     {

@@ -1,13 +1,28 @@
 const { User, Post, Comment } = require("../models");
+const cloudinary = require("../config/cloudinary");
 const create_Post = async (data, file) => {
-    const postData = {
-      title: data.title,
-      image: file ? file.name : null,
-      userId: data.userId,
-      caption: data.caption,
-    };
-    const post = await Post.create(postData);
-    return post;
+  let imageUrl = null;
+  let imagePublicId = null;
+
+  if (file) {
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: "posts",
+    });
+
+    imageUrl = result.secure_url;
+    imagePublicId = result.public_id;
+  }
+
+  const postData = {
+    title: data.title,
+    image: imageUrl,
+    imagePublicId:imagePublicId,
+    userId: data.userId,
+    caption: data.caption,
+  };
+
+  const post = await Post.create(postData);
+  return post;
 };
 const get_AllPost = async () => {
 
@@ -76,12 +91,24 @@ const update_PostById=async(id,data,file)=>{
         error.statusCode(404)
         throw error;
     }
-  if(file){
-    data.image=file.filename;
-  }
-  return await post.update(data);
+   if (file) {
 
-}
+    if (post.imagePublicId) {
+      await cloudinary.uploader.destroy(post.imagePublicId);
+    }
+
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: "posts",
+    });
+
+    data.image = result.secure_url;
+    data.imagePublicId = result.public_id;
+  }
+
+  return await post.update(data);
+};
+  
+ 
 module.exports = {
   create_Post,
   get_AllPost,
