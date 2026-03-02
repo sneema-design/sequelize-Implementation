@@ -44,13 +44,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      parentId: {
+        type: DataTypes.INTEGER,
+        allowNull: true, // null means top-level comment
+      },
     },
     {
       sequelize,
       modelName: "Comment",
       timestamps: true,
       paranoid: true,
-    }
+    },
   );
 
   return Comment;

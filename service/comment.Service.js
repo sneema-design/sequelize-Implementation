@@ -33,9 +33,7 @@ const getCommentById = async (id) => {
     ],
   });
 
-  if (!comment) {
-    throw new Error("Comment not found");
-  }
+  if (!comment) throw new Error("Comment not found");
 
   return comment;
 };
