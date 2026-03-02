@@ -4,33 +4,51 @@ const { User, Post } = require("../models");
 const { Op } = require("sequelize");
 
 const createUser = async (data, file) => {
-  const { firstName, lastName, email, age, password, bio } = data;
- 
-
+  const checkUser = await User.findOne({where:{
+    email:data.email
+  }});
+  if (checkUser) {
+    const error = new Error("Email Id already exists");
+    error.statusCode = 409;
+    throw error;
+  }
   const user = await User.create({
-    ...data,
+    data,
     image: file ? file.filename : null,
   });
-
   return user;
 };
 
 const getAllUsers = async () => {
-  return await User.findAll({
+  const users = await User.findAll({
     include: [{ model: Post, as: "posts" }],
   });
+  if (users.length === 0) {
+    const error = new Error("No Users found");
+    error.statusCode = 404;
+    throw error;
+  }
+  return users;
 };
 
 const getUserById = async (id) => {
   const user = await User.findByPk(id);
-  if (!user) throw new Error("User not found");
+  if (!user) {
+    const error = new Error("No Users found");
+    error.statusCode = 404;
+    throw error;
+  }
   return user;
 };
 
 const updateUser = async (id, data, file) => {
   const user = await User.findByPk(id);
-  if (!user) throw new Error("User not found");
-  if (file) { 
+  if (!user) {
+    const error = new Error("No Users found");
+    error.statusCode = 404;
+    throw error;
+  }
+  if (file) {
     data.image = file.filename;
   }
 
@@ -39,8 +57,11 @@ const updateUser = async (id, data, file) => {
 
 const deleteUser = async (id) => {
   const user = await User.findByPk(id);
-  if (!user) throw new Error("User not found");
-
+  if (!user) {
+    const error = new Error("No Users found");
+    error.statusCode = 404;
+    throw error;
+  }
   await user.destroy();
   return true;
 };
@@ -59,10 +80,17 @@ const filterUser = async (minAge, maxAge) => {
 
 const login = async (email, password) => {
   const user = await User.findOne({ where: { email } });
-  if (!user) throw new Error("User not found");
-
+  if (!user) {
+    const error = new Error("No Users found");
+    error.statusCode = 404;
+    throw error;
+  }
   const isMatch = await user.comparePassword(password);
-  if (!isMatch) throw new Error("Invalid password");
+  if (!isMatch) {
+    const error = new Error("Password is not correct");
+    error.statusCode = 401;
+    throw error;
+  }
 
   const access_token = jwt.sign(
     { id: user.id, email: user.email },
@@ -81,7 +109,13 @@ const login = async (email, password) => {
 
 const getUserByToken = async (token) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  return await User.findByPk(decoded.id);
+  const user = await User.findByPk(decoded.id);
+  if (!user) {
+    const error = new Error("No Users found");
+    error.statusCode = 404;
+    throw error;
+  }
+  return user;
 };
 const refreshAccessToken = async (refresh_token) => {
   if (!refresh_token) {
@@ -90,7 +124,9 @@ const refreshAccessToken = async (refresh_token) => {
   const decoded = jwt.verify(refresh_token, process.env.REFRESH_SECRET);
   const user = User.findByPk(decoded.id);
   if (!user) {
-    throw new Error("user not found");
+    const error = new Error("No Users found");
+    error.statusCode = 404;
+    throw error;
   }
   const access_token = jwt.sign(
     { id: user.id, email: user.email },

@@ -7,6 +7,11 @@ const create_like = async (data) => {
 
 const get_AllLikes = async () => {
   const likes = await Like.findAll();
+  if (likes.length === 0) {
+    const error = new Error("No like found By This Id");
+    error.statusCode = 404;
+    throw error;
+  }
   return likes;
 };
 
@@ -18,12 +23,14 @@ const get_LikeById = async (id) => {
     ],
   });
   if (!like) {
-    throw new Error("no like by this id");
+    const error = new Error("No like found By This Id");
+    error.statusCode = 404;
+    throw error;
   }
   return like;
 };
 const get_LikeByUserId = async (id) => {
-  const like = await Like.findAll({
+  const likes = await Like.findAll({
     where: {
       userId: id,
     },
@@ -32,30 +39,34 @@ const get_LikeByUserId = async (id) => {
       { model: Post, as: "post" },
     ],
   });
-  if(!like){
-    throw new Error("there is no like by this user")
+  if (likes.length === 0) {
+    const error = new Error("No like found By This Id");
+    error.statusCode = 404;
+    throw error;
   }
-  return like
+  return likes;
 };
-const get_LikeByPostId=async(id)=>{
-    const like=await Like.findAll({
-        where:{
-            postId:id
-        },
-        include:[
-            {model:User,as:"user"},
-            {model:Post,as:"post"}
-        ]
-    })
-    if(!like){
-        throw new Error("there is no like on this post")
-    }
-    return like
-}
+const get_LikeByPostId = async (id) => {
+  const likes = await Like.findAll({
+    where: {
+      postId: id,
+    },
+    include: [
+      { model: User, as: "user" },
+      { model: Post, as: "post" },
+    ],
+  });
+  if (likes.length === 0) {
+    const error = new Error("No like found By This Id");
+    error.statusCode = 404;
+    throw error;
+  }
+  return likes;
+};
 module.exports = {
   create_like,
   get_AllLikes,
   get_LikeById,
   get_LikeByUserId,
-  get_LikeByPostId
+  get_LikeByPostId,
 };

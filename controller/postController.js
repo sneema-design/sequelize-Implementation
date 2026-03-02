@@ -9,7 +9,7 @@ const {
 const createPost = async (req, res, next) => {
   try {
     const post = await create_Post(req.body, req.file);
-    res.status(200).json(post);
+    res.status(201).json(post);
   } catch (error) {
     next(error);
   }
@@ -43,12 +43,6 @@ const deletePostById=async(req,res,next)=>{
 const getPostByUserId=async(req,res,next)=>{
   try {
     const post= await get_PostByUserId(req.params.id);
-     if (post.length === 0) {
-      return res.status(404).json({
-        message: "No posts found for this user",
-      });
-    }
-
     res.status(200).json(post);
   } catch (error) {
     next(error)
