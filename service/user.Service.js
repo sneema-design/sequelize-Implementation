@@ -1,8 +1,11 @@
-// services/user.service.js
-const jwt = require("jsonwebtoken");
 const { User, Post } = require("../models");
 const { Op } = require("sequelize");
-
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+} = require("../utils/token.utils");
 const createUser = async (data, file) => {
   const checkUser = await User.findOne({where:{
     email:data.email
@@ -80,26 +83,22 @@ const filterUser = async (minAge, maxAge) => {
 
 const login = async (email, password) => {
   const user = await User.findOne({ where: { email } });
+
   if (!user) {
-    const error = new Error("No Users found");
+    const error = new Error("User not found");
     error.statusCode = 404;
     throw error;
   }
+
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    const error = new Error("Password is not correct");
+    const error = new Error("Invalid password");
     error.statusCode = 401;
     throw error;
   }
 
-  const access_token = jwt.sign(
-    { id: user.id, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN },
-  );
-  const refresh_token = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
-  });
+  const access_token = generateAccessToken(user);
+  const refresh_token = generateRefreshToken(user);
 
   user.refreshToken = refresh_token;
   await user.save();
@@ -108,7 +107,7 @@ const login = async (email, password) => {
 };
 
 const getUserByToken = async (token) => {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = verifyAccessToken(token);
   const user = await User.findByPk(decoded.id);
   if (!user) {
     const error = new Error("No Users found");
@@ -119,21 +118,23 @@ const getUserByToken = async (token) => {
 };
 const refreshAccessToken = async (refresh_token) => {
   if (!refresh_token) {
-    throw new Error("refresh token not provided");
-  }
-  const decoded = jwt.verify(refresh_token, process.env.REFRESH_SECRET);
-  const user = User.findByPk(decoded.id);
-  if (!user) {
-    const error = new Error("No Users found");
-    error.statusCode = 404;
+    const error = new Error("Refresh token not provided");
+    error.statusCode = 400;
     throw error;
   }
-  const access_token = jwt.sign(
-    { id: user.id, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN },
-  );
-  return access_token;
+
+  const decoded = verifyRefreshToken(refresh_token);
+
+  const user = await User.findByPk(decoded.id);
+  if (!user || user.refreshToken !== refresh_token) {
+    const error = new Error("Invalid refresh token");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const newAccessToken = generateAccessToken(user);
+
+  return { access_token: newAccessToken };
 };
 module.exports = {
   createUser,
