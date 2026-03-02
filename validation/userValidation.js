@@ -1,4 +1,4 @@
-const { z, email } = require("zod");
+const { z } = require("zod");
 
 const createUserSchema = z.object({
   firstName: z
