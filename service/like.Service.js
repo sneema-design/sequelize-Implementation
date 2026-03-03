@@ -1,4 +1,5 @@
 const { User, Post, Like } = require("../models");
+const { checkEmpty } = require("../utils/error");
 
 const create_like = async (data) => {
   const like = await Like.create(data);
@@ -7,12 +8,8 @@ const create_like = async (data) => {
 
 const get_AllLikes = async () => {
   const likes = await Like.findAll();
-  if (likes.length === 0) {
-    const error = new Error("No like found By This Id");
-    error.statusCode = 404;
-    throw error;
-  }
-  return likes;
+  
+  return checkEmpty(likes, "Like Not Found");
 };
 
 const get_LikeById = async (id) => {
@@ -22,12 +19,8 @@ const get_LikeById = async (id) => {
       { model: Post, as: "post" },
     ],
   });
-  if (!like) {
-    const error = new Error("No like found By This Id");
-    error.statusCode = 404;
-    throw error;
-  }
-  return like;
+
+  return checkEmpty(like, "Like Not Found By This Id");
 };
 const get_LikeByUserId = async (id) => {
   const likes = await Like.findAll({
@@ -39,12 +32,8 @@ const get_LikeByUserId = async (id) => {
       { model: Post, as: "post" },
     ],
   });
-  if (likes.length === 0) {
-    const error = new Error("No like found By This Id");
-    error.statusCode = 404;
-    throw error;
-  }
-  return likes;
+  
+  return checkEmpty(likes, "Like Not Found By This Id");
 };
 const get_LikeByPostId = async (id) => {
   const likes = await Like.findAll({
@@ -56,12 +45,8 @@ const get_LikeByPostId = async (id) => {
       { model: Post, as: "post" },
     ],
   });
-  if (likes.length === 0) {
-    const error = new Error("No like found By This Id");
-    error.statusCode = 404;
-    throw error;
-  }
-  return likes;
+
+  return checkEmpty(likes, "Like Not Found On This PostId");
 };
 module.exports = {
   create_like,

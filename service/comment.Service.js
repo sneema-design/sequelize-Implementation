@@ -1,4 +1,5 @@
 const { Comment, Post, User } = require("../models");
+const { checkEmpty } = require("../utils/error");
 
 const createComment = async (data) => {
   const comment = await Comment.create(data);
@@ -13,13 +14,7 @@ const getAllComments = async () => {
     ],
   });
 
-  if (comments.length === 0) {
-    const error = new Error("Comments not found");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  return comments;
+  return checkEmpty(comments, "Comments Not Found");
 };
 
 const getCommentById = async (id) => {
@@ -35,12 +30,7 @@ const getCommentById = async (id) => {
     ],
   });
 
-  if (!comment) {
-    const error = new Error("Comment not found");
-    error.statusCode = 404;
-    throw error;
-  }
-  return comment;
+  return checkEmpty(comment, "Comments Not Found");
 };
 
 const getCommentsByUserId = async (id) => {
@@ -49,13 +39,7 @@ const getCommentsByUserId = async (id) => {
       userId: id,
     },
   });
-
-  if (comments.length === 0) {
-    const error = new Error("NO Comments by this user");
-    error.statusCode = 404;
-    throw error;
-  }
-  return comments;
+  return checkEmpty(comments, "Comments Not Found");
 };
 const getCommentsByPostId = async (id) => {
   const comments = await Comment.findAll({
@@ -63,12 +47,7 @@ const getCommentsByPostId = async (id) => {
       postId: id,
     },
   });
-  if (comments.length === 0) {
-    const error = new Error("No Comments on the Post");
-    error.statusCode = 404;
-    throw error;
-  }
-  return comments;
+  return checkEmpty(comments, "Comments Not Found");
 };
 
 module.exports = {
