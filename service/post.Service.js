@@ -1,5 +1,6 @@
 const { User, Post, Comment } = require("../models");
 const cloudinary = require("../config/cloudinary");
+const { checkEmpty } = require("../utils/error");
 const create_Post = async (data, file) => {
   let imageUrl = null;
   let imagePublicId = null;
@@ -16,7 +17,7 @@ const create_Post = async (data, file) => {
   const postData = {
     title: data.title,
     image: imageUrl,
-    imagePublicId:imagePublicId,
+    imagePublicId: imagePublicId,
     userId: data.userId,
     caption: data.caption,
   };
@@ -25,74 +26,57 @@ const create_Post = async (data, file) => {
   return post;
 };
 const get_AllPost = async () => {
+  const post = await Post.findAll({
+    include: [
+      { model: User, as: "user" },
+      { model: Comment, as: "comments" },
+    ],
+  });
 
-    const post = await Post.findAll({
-      include: [
-        { model: User, as: "user" },
-        { model: Comment, as: "comments" },
-      ],
-    });
-    
   if (post.length === 0) {
     const error = new Error("No posts found");
     error.statusCode = 404;
     throw error;
   }
-
-    return post;
-  
+  return checkEmpty(post, "No post Found ");
 };
 const get_PostById = async (id) => {
-  
-    const post = await Post.findByPk(id, {
-      include: [
-        { model: User, as: "user" },
-        { model: Comment, as: "comments" },
-      ],
-    });
-    if (!post) {
-      const error =new Error("No post Found by this Id")
-      error.statusCode=404;
-      throw error
-    }
-    return post;
-   
+  const post = await Post.findByPk(id, {
+    include: [
+      { model: User, as: "user" },
+      { model: Comment, as: "comments" },
+    ],
+  });
+  return checkEmpty(post, "No post Found by this Id");
 };
 const delete_PostById = async (id) => {
-
-    const post= await Post.findByPk(id);
-    if(!post){
-        const error=new Error("No post found by this Id")
-        error.statusCode(404)
-        throw error;
-    }
-    await post.destroy();
-    return true;
-  
+  const post = await Post.findByPk(id);
+  if (!post) {
+    const error = new Error("No post found by this Id");
+    error.statusCode(404);
+    throw error;
+  }
+  await post.destroy();
+  return true;
 };
 
-const get_PostByUserId=async(id)=>{
-  const post=await Post.findAll({
-    where:{
-      userId:id
-    }
-  })
-   if(!post){
-        const error=new Error("No post found By this UserId")
-        error.statusCode(404)
-        throw error;
-    }
-  return post;
-}
-const update_PostById=async(id,data,file)=>{
-  const post=await Post.findByPk(id);
-  if(!post){
-        const error=new Error("No post found By this UserId")
-        error.statusCode(404)
-        throw error;
-    }
-   if (file) {
+const get_PostByUserId = async (id) => {
+  const post = await Post.findAll({
+    where: {
+      userId: id,
+    },
+  });
 
+  return checkEmpty(post, "No post Found by this Id");
+};
+const update_PostById = async (id, data, file) => {
+  const post = await Post.findByPk(id);
+  if (!post) {
+    const error = new Error("No post found By this UserId");
+    error.statusCode(404);
+    throw error;
+  }
+  if (file) {
     if (post.imagePublicId) {
       await cloudinary.uploader.destroy(post.imagePublicId);
     }
@@ -107,13 +91,12 @@ const update_PostById=async(id,data,file)=>{
 
   return await post.update(data);
 };
-  
- 
+
 module.exports = {
   create_Post,
   get_AllPost,
   get_PostById,
   delete_PostById,
   get_PostByUserId,
-  update_PostById
+  update_PostById,
 };
