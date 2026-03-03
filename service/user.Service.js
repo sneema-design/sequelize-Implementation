@@ -7,7 +7,7 @@ const {
   verifyAccessToken,
   verifyRefreshToken,
 } = require("../utils/token.utils");
-const { checkEmpty } = require("../utils/error");
+const { checkEmpty, throwError } = require("../utils/error");
 
 const createUser = async (data, file) => {
   const checkUser = await User.findOne({
@@ -16,9 +16,7 @@ const createUser = async (data, file) => {
     },
   });
   if (checkUser) {
-    const error = new Error("Email Id already exists");
-    error.statusCode = 409;
-    throw error;
+    throwError("Email Id already exists",409);
   }
   let imageUrl;
   let imagePublicId;
@@ -54,9 +52,7 @@ const getUserById = async (id) => {
 const updateUser = async (id, data, file) => {
   const user = await User.findByPk(id);
   if (!user) {
-    const error = new Error("No Users found");
-    error.statusCode = 404;
-    throw error;
+    throwError("No Users found", 404);
   }
   if (file) {
     if (user.imagePublicId) {
@@ -74,9 +70,7 @@ const updateUser = async (id, data, file) => {
 const deleteUser = async (id) => {
   const user = await User.findByPk(id);
   if (!user) {
-    const error = new Error("No Users found");
-    error.statusCode = 404;
-    throw error;
+    throwError("No Users found", 404);
   }
   await user.destroy();
   return true;
@@ -95,15 +89,11 @@ const filterUser = async (minAge, maxAge) => {
 const login = async (email, password) => {
   const user = await User.findOne({ where: { email } });
   if (!user) {
-    const error = new Error("User not found");
-    error.statusCode = 404;
-    throw error;
+    throwError("User not found", 404);
   }
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    const error = new Error("Invalid password");
-    error.statusCode = 401;
-    throw error;
+    throwError("Invalid Password", 401);
   }
   const access_token = generateAccessToken(user);
   const refresh_token = generateRefreshToken(user);
@@ -120,16 +110,12 @@ const getUserByToken = async (token) => {
 
 const refreshAccessToken = async (refresh_token) => {
   if (!refresh_token) {
-    const error = new Error("Refresh token not provided");
-    error.statusCode = 400;
-    throw error;
+    throwError("Refresh token not provided",400)
   }
   const decoded = verifyRefreshToken(refresh_token);
   const user = await User.findByPk(decoded.id);
   if (!user || user.refreshToken !== refresh_token) {
-    const error = new Error("Invalid refresh token");
-    error.statusCode = 401;
-    throw error;
+    throwError("Invalid refresh token",401)
   }
   const newAccessToken = generateAccessToken(user);
   return { access_token: newAccessToken };

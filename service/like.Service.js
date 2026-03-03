@@ -8,7 +8,6 @@ const create_like = async (data) => {
 
 const get_AllLikes = async () => {
   const likes = await Like.findAll();
-  
   return checkEmpty(likes, "Like Not Found");
 };
 
@@ -19,9 +18,9 @@ const get_LikeById = async (id) => {
       { model: Post, as: "post" },
     ],
   });
-
   return checkEmpty(like, "Like Not Found By This Id");
 };
+
 const get_LikeByUserId = async (id) => {
   const likes = await Like.findAll({
     where: {
@@ -32,9 +31,9 @@ const get_LikeByUserId = async (id) => {
       { model: Post, as: "post" },
     ],
   });
-  
   return checkEmpty(likes, "Like Not Found By This Id");
 };
+
 const get_LikeByPostId = async (id) => {
   const likes = await Like.findAll({
     where: {
@@ -45,9 +44,9 @@ const get_LikeByPostId = async (id) => {
       { model: Post, as: "post" },
     ],
   });
-
   return checkEmpty(likes, "Like Not Found On This PostId");
 };
+
 module.exports = {
   create_like,
   get_AllLikes,
