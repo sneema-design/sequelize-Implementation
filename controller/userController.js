@@ -1,5 +1,6 @@
 // controllers/user.controller.js
 const userService = require("../service/user.Service");
+const { checkId } = require("../utils/error");
 
 const createUser = async (req, res, next) => {
   try {
@@ -18,11 +19,13 @@ const getAllUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}; 
 
 const getUserById = async (req, res, next) => {
   try {
-    const user = await userService.getUserById(req.params.id);
+    const {id}=req.params.id
+    checkId(id)
+    const user = await userService.getUserById(id);
     res.status(200).json(user);
   } catch (error) {
     next(error);
@@ -31,6 +34,8 @@ const getUserById = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   try {
+    const {id}=req.params.id;
+    checkId(id)
     const updatedUser = await userService.updateUser(
       req.params.id,
       req.body,
@@ -44,7 +49,9 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-    await userService.deleteUser(req.params.id);
+    const {id} =req.params.id
+    checkId(id);
+    await userService.deleteUser(id);
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     next(error);

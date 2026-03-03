@@ -11,4 +11,13 @@ const throwError=(message,statusCode)=>{
   error.statusCode=statusCode;
   throw error
 }
-module.exports={checkEmpty,throwError}
+const checkId=(id)=>{
+  if (!id) {
+    throwError("Please Provide an id",400)
+  }
+
+  if (isNaN(id)) {
+    throwError("Id must be a number",400)
+  }
+}
+module.exports={checkEmpty,throwError,checkId}
