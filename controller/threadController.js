@@ -1,4 +1,5 @@
 const threadService = require("../service/thread.Service");
+const { checkId } = require("../utils/error");
 
 const createThread = async (req, res) => {
   try {
@@ -19,10 +20,8 @@ const getAllThread = async (req, res) => {
 
 const getThreadById = async (req, res) => {
   try {
-    const id = req.params.id;
-    if (!id.length) {
-      throw new Error("Please provide a id");
-    }
+    const { id } = req.params.id;
+    checkId(id);
     const thread = await threadService.getThreadById(id);
     res.status(200).json(thread);
   } catch (error) {
@@ -32,10 +31,8 @@ const getThreadById = async (req, res) => {
 
 const getThreadByCommentId = async (req, res) => {
   try {
-    const id = req.params.id;
-    if (!id.length) {
-      throw new Error("Please provide a id");
-    }
+    const {id} = req.params.id;
+    checkId(id);
     const thread = await threadService.getThreadByCommentId(id);
     res.status(200).json(thread);
   } catch (error) {

@@ -1,4 +1,5 @@
 const commentService = require("../service/comment.Service");
+const { checkId } = require("../utils/error");
 
 const createComments = async (req, res,next) => {
   try {
@@ -19,10 +20,8 @@ const getAllComments = async (req, res,next) => {
 };
 const getCommentsById = async (req, res,next) => {
   try {
-    const id = req.params.id;
-    if (!id) {
-      throw new Error("Please provide a id");
-    }
+    const {id} = req.params.id;
+    checkId(id)
     const comment = await commentService.getCommentById(id);
     res.status(200).json(comment);
   } catch (error) {
@@ -31,10 +30,8 @@ const getCommentsById = async (req, res,next) => {
 };
 const getCommentsByUserId = async (req, res,next) => {
   try {
-    const id = req.params.id;
-    if (!id) {
-      throw new Error("Please Provide a user Id");
-    }
+    const {id} = req.params.id;
+    checkId(id)
     const comment = await commentService.getCommentsByUserId(id);
     res.status(200).json(comment);
   } catch (error) {
@@ -43,10 +40,8 @@ const getCommentsByUserId = async (req, res,next) => {
 };
 const getCommentsByPostId = async (req, res,next) => {
   try {
-    const id = req.params.id;
-    if (!id) {
-      throw new Error("Please Provide a Post Id");
-    }
+    const {id} = req.params.id;
+    checkId(id)
     const comments = await commentService.getCommentsByPostId(id);
     res.status(200).json(comments);
   } catch (error) {
